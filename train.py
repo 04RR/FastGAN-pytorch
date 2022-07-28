@@ -110,8 +110,6 @@ def train(args):
     netD.to(device)
 
     avg_param_G = copy_G_params(netG)
-
-    fixed_noise = torch.FloatTensor(8, nz).normal_(0, 1).to(device)
     
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
@@ -166,7 +164,9 @@ def train(args):
             backup_para = copy_G_params(netG)
             load_params(netG, avg_param_G)
             with torch.no_grad():
-                vutils.save_image(netG(fixed_noise)[0].add(1).mul(0.5), saved_image_folder+'/%d.jpg'%iteration, nrow=4)
+                for i in range(5):
+                    fixed_noise = torch.FloatTensor(1, nz).normal_(0, 1).to(device)
+                    vutils.save_image(netG(fixed_noise)[0].add(1).mul(0.5), saved_image_folder+f'gen_{i}.png')
                 vutils.save_image( torch.cat([
                         F.interpolate(real_image, 128), 
                         rec_img_all, rec_img_small,
